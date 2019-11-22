@@ -1,0 +1,9 @@
+{
+    "url": "http://172.17.8.247/cam/v1/drv/temperatura",
+    "interval": 1000,
+    "threads": 2,
+    "format": "json",
+    "folderName": "temperatures",
+    "forever": false,
+    "qtd": 10
+}
