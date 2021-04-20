@@ -17,13 +17,15 @@ import (
 )
 
 type Config struct {
-	URL        string `json:"url"`
-	Interval   int    `json:"interval"`
-	Threads    int    `json:"threads"`
-	Format     string `json:"format"`
-	FolderName string `json:"folderName"`
-	Forever    bool   `json:"forever"`
-	Qtd        int    `json:"qtd"`
+	URL         string `json:"url"`
+	Interval    int    `json:"interval"`
+	Threads     int    `json:"threads"`
+	Format      string `json:"format"`
+	FolderName  string `json:"folderName"`
+	Qtd         int    `json:"qtd"`
+	RampaInicio int    `json:"rampaInicio"`
+	Forever     bool   `json:"forever"`
+	Persist     bool   `json:"persist"`
 }
 type Tester struct {
 	config      Config
@@ -46,13 +48,14 @@ func main() {
 	flag.Parse()
 
 	tester := NewTester(*configName)
+	sleepTime := time.Millisecond * time.Duration(tester.config.RampaInicio/tester.config.Threads)
 
 	for i := 0; i < tester.config.Threads; i++ {
 		tester.wg.Add(1)
 
 		go tester.Run()
 
-		time.Sleep(time.Millisecond)
+		time.Sleep(sleepTime)
 	}
 
 	tester.wg.Wait()
@@ -84,7 +87,7 @@ func (te *Tester) getFileName(t time.Time) string {
 	te.namingMutex.Lock()
 	defer te.namingMutex.Unlock()
 
-	tStr := t.Format("2006_01_02_15_04_05.0000")
+	tStr := t.Format("2006_01_02_15_04_05.000000")
 	timeString := strings.ReplaceAll(tStr, ".", "_")
 	seq := fmt.Sprintf("%06v", te.Counter())
 
@@ -100,17 +103,19 @@ func (te *Tester) DoRequest(t time.Time) {
 
 	fileName := te.getFileName(t)
 
-	f, err := os.OpenFile(fileName, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
-	if err != nil {
-		panic(err)
-	}
+	if te.config.Persist {
+		f, err := os.OpenFile(fileName, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+		if err != nil {
+			panic(err)
+		}
 
-	_, err = f.Write(body)
-	if err != nil {
-		log.Println("Erro ao escrever resposta no arquivo:", err.Error())
-	}
+		_, err = f.Write(body)
+		if err != nil {
+			log.Println("Erro ao escrever resposta no arquivo:", err.Error())
+		}
 
-	f.Close()
+		f.Close()
+	}
 }
 func (te *Tester) Run() {
 	for i := 0; i < te.config.Qtd; i++ {

@@ -1,4 +1,7 @@
 data/**
-*.exe
 *.json
+*.bat
 !config.json
+*.exe
+*.zip
+get-tester

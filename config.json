@@ -4,6 +4,8 @@
     "threads": 2,
     "format": "json",
     "folderName": "temperatures",
+    "qtd": 10,
+    "rampaInicio": 1000,
     "forever": false,
-    "qtd": 10
+    "persist": true
 }
