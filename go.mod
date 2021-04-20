@@ -1,4 +1,4 @@
-module requestTester
+module get-requester
 
 go 1.13
 
